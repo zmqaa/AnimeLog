@@ -1,0 +1,112 @@
+CREATE TABLE anime (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  uuid TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL CHECK(length(trim(title)) BETWEEN 1 AND 200),
+  original_title TEXT,
+  season INTEGER CHECK(season > 0),
+  entry_type TEXT CHECK(entry_type IN ('tv','movie','ova','ona','special')),
+  source_provider TEXT,
+  source_id TEXT,
+  total_episodes INTEGER CHECK(total_episodes > 0),
+  duration_minutes INTEGER CHECK(duration_minutes > 0),
+  summary TEXT,
+  cover_url TEXT,
+  premiere_date TEXT,
+  is_finished BOOLEAN,
+  "cast" TEXT NOT NULL DEFAULT '[]' CHECK(json_valid("cast") AND json_type("cast") = 'array'),
+  cast_aliases TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(cast_aliases) AND json_type(cast_aliases) = 'array'),
+  local_cover_path TEXT,
+  status TEXT NOT NULL CHECK(status IN ('watching','completed','dropped','plan_to_watch')),
+  progress INTEGER NOT NULL DEFAULT 0 CHECK(progress >= 0),
+  score REAL CHECK(score >= 0 AND score <= 10),
+  rewatch_count INTEGER CHECK(rewatch_count >= 2),
+  tags TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(tags) AND json_type(tags) = 'array'),
+  notes TEXT,
+  start_date TEXT,
+  start_date_source TEXT CHECK(start_date_source IN ('manual','history')),
+  end_date TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  CHECK((source_provider IS NULL AND source_id IS NULL) OR
+    (length(trim(source_provider)) > 0 AND length(trim(source_id)) > 0 AND source_provider IS NOT NULL AND source_id IS NOT NULL)),
+  CHECK(total_episodes IS NULL OR progress <= total_episodes),
+  CHECK(status != 'plan_to_watch' OR progress = 0),
+  CHECK(status != 'completed' OR total_episodes IS NULL OR progress = total_episodes),
+  CHECK(status = 'completed' OR end_date IS NULL),
+  CHECK(start_date IS NULL OR end_date IS NULL OR start_date <= end_date),
+  CHECK(start_date IS NOT NULL OR start_date_source IS NULL)
+);
+CREATE INDEX anime_status ON anime(status);
+CREATE INDEX anime_updated ON anime(updated_at);
+CREATE INDEX anime_title ON anime(title);
+CREATE INDEX anime_source ON anime(source_provider, source_id);
+
+CREATE TABLE watch_history (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  uuid TEXT NOT NULL UNIQUE,
+  anime_uuid TEXT NOT NULL REFERENCES anime(uuid) ON DELETE CASCADE,
+  episode INTEGER NOT NULL CHECK(episode > 0),
+  watched_on TEXT NOT NULL,
+  watched_at TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX history_anime ON watch_history(anime_uuid, watched_on);
+
+CREATE TABLE anime_notes (
+  uuid TEXT NOT NULL PRIMARY KEY,
+  anime_uuid TEXT NOT NULL REFERENCES anime(uuid) ON DELETE CASCADE,
+  episode INTEGER CHECK(episode > 0),
+  content TEXT NOT NULL CHECK(length(trim(content)) > 0),
+  noted_on TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE UNIQUE INDEX overall_note ON anime_notes(anime_uuid) WHERE episode IS NULL;
+
+CREATE TABLE intake_commits (
+  draft_id TEXT NOT NULL PRIMARY KEY,
+  anime_uuid TEXT NOT NULL REFERENCES anime(uuid) ON DELETE CASCADE
+);
+CREATE TABLE app_settings (
+  setting_key TEXT NOT NULL PRIMARY KEY,
+  value TEXT NOT NULL
+);
+CREATE TABLE legacy_imports (
+  fingerprint TEXT NOT NULL PRIMARY KEY,
+  imported_at TEXT NOT NULL
+);
+
+CREATE TABLE manga (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  uuid TEXT NOT NULL UNIQUE,
+  bangumi_id INTEGER,
+  title TEXT NOT NULL CHECK(length(trim(title)) BETWEEN 1 AND 500),
+  original_title TEXT,
+  aliases TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(aliases) AND json_type(aliases) = 'array'),
+  cover_url TEXT,
+  local_cover_path TEXT,
+  status TEXT NOT NULL CHECK(status IN ('plan_to_read','reading','caught_up','completed','paused','dropped')),
+  publication_status TEXT NOT NULL CHECK(publication_status IN ('ongoing','completed','hiatus','unknown')),
+  score REAL CHECK(score >= 0 AND score <= 10),
+  current_volume INTEGER CHECK(current_volume >= 0),
+  current_chapter INTEGER CHECK(current_chapter >= 0),
+  total_volumes INTEGER CHECK(total_volumes > 0),
+  total_chapters INTEGER CHECK(total_chapters > 0),
+  notes TEXT,
+  tags TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(tags) AND json_type(tags) = 'array'),
+  summary TEXT,
+  authors TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(authors) AND json_type(authors) = 'array'),
+  illustrators TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(illustrators) AND json_type(illustrators) = 'array'),
+  publishers TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(publishers) AND json_type(publishers) = 'array'),
+  serializations TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(serializations) AND json_type(serializations) = 'array'),
+  start_date TEXT,
+  end_date TEXT,
+  release_date TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  CHECK(start_date IS NULL OR end_date IS NULL OR start_date <= end_date)
+);
+CREATE INDEX manga_status ON manga(status);
+CREATE INDEX manga_updated ON manga(updated_at);
+CREATE INDEX manga_title ON manga(title);
+CREATE INDEX manga_bangumi ON manga(bangumi_id);

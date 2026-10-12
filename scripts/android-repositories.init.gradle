@@ -1,0 +1,29 @@
+// Optional build-only workaround for Maven Central/Plugin Portal 404 responses
+// in this environment. Google hosts this official Maven Central mirror.
+beforeSettings { settings ->
+    settings.pluginManagement.repositories {
+        maven { url = uri('https://maven-central.storage-download.googleapis.com/maven2') }
+        google()
+        gradlePluginPortal()
+    }
+}
+settingsEvaluated { settings ->
+    settings.dependencyResolutionManagement.repositoriesMode.set(
+        org.gradle.api.initialization.resolve.RepositoriesMode.PREFER_PROJECT)
+}
+allprojects {
+    buildscript.repositories {
+        def cachedOfficialArtifacts = new File(gradle.startParameter.currentDir.parentFile, 'build/android-maven')
+        if (cachedOfficialArtifacts.isDirectory()) {
+            maven { url = cachedOfficialArtifacts.toURI() }
+        }
+        maven { url = uri('https://maven-central.storage-download.googleapis.com/maven2') }
+        google()
+        gradlePluginPortal()
+    }
+    repositories {
+        maven { url = uri('https://maven-central.storage-download.googleapis.com/maven2') }
+        google()
+        maven { url = uri('https://storage.googleapis.com/download.flutter.io') }
+    }
+}

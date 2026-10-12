@@ -1,0 +1,91 @@
+{
+  "formatVersion": 5,
+  "exportedAt": "2026-10-10T04:00:00.000Z",
+  "datasets": [
+    "anime",
+    "manga"
+  ],
+  "anime": {
+    "count": 2,
+    "records": [
+      {
+        "id": 1,
+        "title": "中文动画",
+        "status": "completed",
+        "progress": 12,
+        "totalEpisodes": 12,
+        "durationMinutes": 0,
+        "score": 0,
+        "tags": [
+          "三刷",
+          "日常"
+        ],
+        "startDate": "2026-09-01",
+        "endDate": "2026-10-10",
+        "createdAt": "2026-09-01T08:00:00",
+        "updatedAt": "2026-10-10T04:00:00.000Z",
+        "notes": [
+          {
+            "id": 11,
+            "content": "总备注中文",
+            "notedAt": "2026-10-01",
+            "createdAt": "2026-10-10T04:00:00.000Z",
+            "updatedAt": "2026-10-10T04:00:00.000Z"
+          },
+          {
+            "id": 12,
+            "episode": 3,
+            "content": "分集中文",
+            "notedAt": "2026-10-02",
+            "createdAt": "2026-10-10T04:00:00.000Z",
+            "updatedAt": "2026-10-10T04:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "中文动画",
+        "status": "watching",
+        "progress": 0,
+        "totalEpisodes": 0,
+        "tags": [],
+        "notes": [
+          {
+            "content": "字符串备注",
+            "notedAt": "2026-10-10"
+          }
+        ],
+        "createdAt": "2026-10-10T04:00:00.000Z",
+        "updatedAt": "2026-10-10T04:00:00.000Z"
+      }
+    ]
+  },
+  "watchHistory": {
+    "count": 2,
+    "records": [
+      {
+        "id": 1,
+        "animeId": 1,
+        "episode": 1,
+        "watchedAt": "2026-10-10T18:30:00Z",
+        "createdAt": "2026-10-10T04:00:00.000Z"
+      },
+      {
+        "id": 2,
+        "animeId": 1,
+        "episode": 1,
+        "watchedAt": "2026-10-10T23:30:00",
+        "createdAt": "2026-10-10T04:00:00.000Z"
+      }
+    ]
+  },
+  "manga": {
+    "count": 1,
+    "records": [
+      {
+        "id": 1,
+        "title": "不支持的漫画"
+      }
+    ]
+  }
+}
